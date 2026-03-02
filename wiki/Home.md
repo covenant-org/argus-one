@@ -15,8 +15,7 @@ flowchart TD
     API --> SB[(Supabase)]
     GAL --> SB
     GAL <-->|WebRTC live| MTX
-    SB --> FL[Flare WebSocket]
-    FL <-->|presence, real-time| GAL
+    FL[Flare WebSocket] <-->|presence, real-time| GAL
     VRG[Vergil Daemon] -->|heartbeat, metrics| SB
     VRG -->|presence| FL
     TB[Thunder Board] -.->|power + telemetry| JETSON[Jetson Station]
@@ -25,7 +24,7 @@ flowchart TD
     JETSON --> MOS
 ```
 
-Camera feeds enter each station via RTSP. MediaMTX re-publishes streams for both live viewing (WebRTC) and recording (Frigate NVR). Frigate runs AI-based object detection and publishes events over MQTT. Vergil workers pick up those events, package them as clips or motion bundles, and upload them to the Galleon API. The Vergil daemon monitors station health (CPU, GPU, RAM, temperature, network, storage) and reports to Supabase. Flare bridges real-time presence between stations and the dashboard via Socket.IO. The Thunder Board manages power distribution and telemetry for the physical hardware.
+Camera feeds enter each station via RTSP. MediaMTX re-publishes streams for both live viewing (WebRTC) and recording (Frigate NVR). Frigate runs AI-based object detection and publishes events over MQTT. Vergil workers pick up those events, package them as clips or motion bundles, and upload them to the Galleon API. The Vergil daemon monitors station health (CPU, GPU, RAM, temperature, network, storage) and reports to Supabase. Flare bridges real-time presence between stations and the dashboard via WebSocket. The Thunder Board manages power distribution and telemetry for the physical hardware.
 
 ## Repositories
 
@@ -33,7 +32,7 @@ Camera feeds enter each station via RTSP. MediaMTX re-publishes streams for both
 |---|---|---|
 | [[Galleon-Overview]] | Client dashboard | Next.js 16, React 19, TypeScript, Supabase |
 | [[Vergil-Overview]] | Edge daemon and workers | Python, asyncio, MQTT, Docker |
-| [[Flare-Overview]] | Real-time WebSocket server | Python, FastAPI, Socket.IO, Redis |
+| [[Flare-Overview]] | Real-time WebSocket server | Python, websockets, Supabase Auth |
 | [[Thunder-Board]] | Power distribution PCB | KiCad 9.0, ATmega328PB |
 
 ## Quick navigation

@@ -26,7 +26,7 @@ Galleon is the client-facing dashboard of the Argus platform. It gives users a s
 | Auth | Supabase Auth (Google OAuth, email/password) |
 | Object storage | Supabase Storage + Cloudflare R2 |
 | Live streaming | MediaMTX (WebRTC WHEP), HLS.js |
-| Real-time | Flare (Socket.IO) + Supabase Realtime |
+| Real-time | Flare (WebSocket) + Supabase Realtime |
 | Forms | react-hook-form + zod validation |
 | Payments | Stripe (webhooks at `/api/webhooks/stripe/`) |
 | API docs | OpenAPI 3.0 (Swagger UI at `/api-docs`) |
@@ -54,7 +54,7 @@ sequenceDiagram
     U->>G: Open recordings
     G->>R2: Fetch HLS segments
     R2-->>U: VOD playback
-    G->>FL: Socket.IO connect
+    G->>FL: WebSocket connect
     FL-->>G: Presence updates (station online/offline)
 ```
 

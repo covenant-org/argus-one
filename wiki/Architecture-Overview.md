@@ -23,7 +23,6 @@ flowchart TD
         SB[(Supabase)]
         R2[Cloudflare R2]
         FL[Flare WS Server]
-        REDIS[(Redis)]
     end
 
     MTX <-->|WebRTC WHEP| GAL
@@ -33,8 +32,7 @@ flowchart TD
     DAEMON -->|presence| FL
     API --> SB
     API --> R2
-    FL <--> REDIS
-    FL <-->|Socket.IO| GAL
+    FL <-->|WebSocket| GAL
     GAL --> SB
 ```
 
@@ -54,7 +52,7 @@ The **Thunder Board** (custom PCB) sits underneath, managing power distribution 
 - **Galleon** is the Next.js dashboard that users interact with. It talks to Supabase for data, MediaMTX for live streams, and Flare for real-time updates.
 - **Supabase** provides PostgreSQL (with RLS for multi-tenancy), authentication (Google OAuth + email), file storage, and Realtime subscriptions.
 - **Cloudflare R2** (S3-compatible) stores media files: VOD segments, detection clips, and motion thumbnails.
-- **Flare** is a Socket.IO server backed by Redis that handles real-time presence (station online/offline) and viewer counts.
+- **Flare** is a lightweight WebSocket server that handles real-time presence (station online/offline) and room-based state broadcasting. It stores sessions in memory and validates connections via Supabase JWT tokens.
 
 ## Communication patterns
 
@@ -66,9 +64,8 @@ The **Thunder Board** (custom PCB) sits underneath, managing power distribution 
 | Frigate | Mosquitto | MQTT | Detection/motion events |
 | Workers | Galleon API | HTTPS | Upload clips, motions, VOD |
 | Vergil daemon | Supabase | HTTPS | Heartbeat, metrics, auth |
-| Vergil daemon | Flare | Socket.IO | Station presence |
-| Flare | Galleon | Socket.IO | Real-time UI updates |
-| Flare | Redis | Redis protocol | Session state, pub/sub |
+| Vergil daemon | Flare | WebSocket | Station presence |
+| Flare | Galleon | WebSocket | Real-time UI updates |
 
 ## Data flow: from camera to dashboard
 

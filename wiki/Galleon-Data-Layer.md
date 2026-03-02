@@ -93,4 +93,4 @@ The `lib/storage.ts` module abstracts both backends, routing uploads and fetches
 Galleon uses two real-time channels:
 
 1. **Supabase Realtime** -- subscribes to database changes (new events, status updates) via Supabase's built-in Realtime service.
-2. **Flare (Socket.IO)** -- connects to the Flare WebSocket server for station presence (online/offline status) and viewer counts. See [[Flare-Overview]] for details.
+2. **Flare (WebSocket)** -- connects to the Flare WebSocket server for station presence (online/offline status) and room-based state updates. See [[Flare-Overview]] for details.

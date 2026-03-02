@@ -32,22 +32,28 @@ The `WebRTCPlayer` component (`components/players/WebRTCPlayer/`) handles:
 
 ```mermaid
 sequenceDiagram
-    participant F as Frigate NVR
+    participant B as Browser
+    participant G as Galleon
+    participant RD as Redis
     participant V as Vergil Daemon (VOD)
+    participant F as Frigate DB
     participant A as Galleon API
     participant R2 as Cloudflare R2
-    participant B as Browser
 
     F->>F: Record continuously
-    V->>F: Read recording segments
-    V->>V: Convert to HLS (.m3u8 + .ts)
+    B->>G: Request recordings
+    G->>RD: Publish VOD request
+    RD->>V: Deliver to station
+    V->>F: Query segments by camera/time
+    V->>V: Convert to MPEG-TS via ffmpeg
     V->>A: POST /api/vod/segment/upload
     A->>R2: Store segments
-    B->>R2: Fetch .m3u8 manifest
-    R2-->>B: HLS stream
+    V->>B: WebSocket: segments ready
+    B->>R2: Fetch HLS manifest
+    R2-->>B: VOD playback
 ```
 
-Frigate records continuously to local storage. The Vergil daemon's VOD module picks up new recording segments, converts them to HLS format (`.m3u8` playlists + `.ts` segments), and uploads them to Galleon's API. The API stores them in Cloudflare R2 (S3-compatible object storage).
+Frigate records continuously to local storage. When a user requests recordings from the dashboard, the request goes through Redis to the Vergil daemon's VOD module on the station. The VOD module queries Frigate's SQLite database, finds the relevant recording segments, converts them to MPEG-TS format via ffmpeg, and uploads them to Galleon's API. The API stores them in Cloudflare R2 (S3-compatible object storage). The daemon notifies the dashboard via WebSocket when segments are ready for playback.
 
 When a user opens recordings in the dashboard, the `HLSPlayer` component fetches the HLS manifest from R2 and plays back using `hls.js`.
 
